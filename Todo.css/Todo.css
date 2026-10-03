@@ -75,9 +75,10 @@ body h1:first-child{
 .sort{
     color: white;
     background-color: darkblue;
-    border: 1px solid black;
     font-weight: bold;
-    width: 10%;
+    width: fit-content;
+    position: relative;
+    padding: 5px;
 }
 .todolist-container{
     height: fit-content;
@@ -112,7 +113,6 @@ article p{
     color: lightskyblue;
     letter-spacing: 1px;
     cursor: default;
-    background-color: black;
     padding: 0px 5px 0 5px;
     margin-left: 2px;
     border-radius: 5px;
@@ -225,6 +225,41 @@ main section div span{
     border: 1px solid gray;
     cursor: pointer;
 }
+.sort1{
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 130px;
+    height: 100px;
+    background-color: transparent;
+    backdrop-filter: blur(20px);
+    border-radius: 5px;
+    border: 1px solid rgba(128, 128, 128, 0.418);
+    display: flex;
+    list-style-type: none;
+    flex-direction: column;
+    justify-content: space-between;
+    text-align: left;
+    padding: 10px;
+    opacity: 0;
+    z-index: -1;
+    transition: all 0.3s;
+}
+.bysort{
+    width: 100%;
+    white-space: nowrap;
+    border-bottom: 1px solid gray;
+}
+.bysort a{
+    color: white;
+    text-decoration: none;
+    font-size: clamp(0.6rem , 1.3vw, 0.8rem);
+    display: block;
+    height: 100%;
+}
+.rotate{
+    font-family: 'Courier New', Courier, monospace;
+}
 .hide{
     display: none;
 }
@@ -258,4 +293,15 @@ main section div span{
     background-color: transparent;
     border: 1px solid rgba(0, 255, 0, 0.568);
     color: white;
+}
+.bysort a:hover{
+    color: black;
+    transition: all 0.3s;
+}
+.sort:hover .rotate{
+    opacity: 0.3;
+}
+.sort:hover .sort1{
+    opacity: 1;
+    z-index: 2;
 }
