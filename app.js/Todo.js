@@ -8,6 +8,7 @@ const forclose = document.querySelector(".for-close");
 const colors = document.querySelector(".colors").querySelectorAll("span");
 const bgcolors = document.querySelector(".bgcolors").querySelectorAll("span");
 const TodosContainer = document.querySelector(".todolist-container");
+const sortitems = document.querySelectorAll(".bysort");
 
 
 let usertodos = [];
@@ -65,7 +66,7 @@ function getDataColors() {
 function GetTodo() {
     const usertodo = writeTodo.value;
 
-    if (usertodo.length > 0) {
+    if (usertodo.length) {
             const newTodo = {
             id: Math.floor(Math.random() * 9999),
             todotitle: usertodo,
@@ -77,19 +78,16 @@ function GetTodo() {
 
 
         setToLocal(usertodos);
-        ShowinDom();
-
+        ShowinDom(usertodos);
 
         hidetodo();
         writeTodo.value = ``;
     } else {
-        if (String(usertodo).includes("" , 0)) {
-            shownothing();
-        } else {
-            shownothing();
-        }
+        shownothing();
     }
 }
+
+addtodo.addEventListener("click" , GetTodo);
 
 function setToLocal(todolist) {
     localStorage.setItem("TODOS" , JSON.stringify(todolist));
@@ -99,15 +97,16 @@ function Gettodosfromlocalstorage() {
     const todolist = JSON.parse(localStorage.getItem("TODOS"));
 
     if (todolist) {
+        ShowinDom(todolist);
         usertodos = todolist;
-        ShowinDom();
+        sortbydefault();
     }
 }
 
-function ShowinDom() {
+function ShowinDom(todos) { // * Function fortest(Parameter , Parameter)  &  fortest(Arguments);
     TodosContainer.innerHTML = ``;
 
-        usertodos.forEach(function (usertodo , index) {
+        todos.forEach(function (usertodo , index) {
         TodosContainer.insertAdjacentHTML("beforeend" ,
             `
             <article>
@@ -116,8 +115,8 @@ function ShowinDom() {
                     <p style="background-color:${usertodo.bgcolor}; color:${usertodo.color};">${usertodo.todotitle}</p>
                 </section>
                 <section>
-                    <button type="button" class="btn delete" onclick="deletethis(${usertodo.id})">Remove</button>
-                    <button type="button" class="btn isitComplete" onclick="message(${index})">${usertodo.isComplete ? "DONE ✅" : "Done ?"}</button>
+                    <button type="button" class="btn delete" onclick="removeTodo(${usertodo.id})">Remove</button>
+                    <button type="button" class="btn isitComplete" onclick="DoneTodos(${usertodo.id})">${usertodo.isComplete ? "DONE" : "Done ?"}</button>
                 </section>
             </article>
             `
@@ -126,41 +125,87 @@ function ShowinDom() {
 }
 
 
-// ! Remove Todo ⛔️
-function deletethis(todoId) {
-
-    const findtodo = usertodos.findIndex(function (findtodowithsameId) {
-        return findtodowithsameId.id === todoId;
+// ! Delete Todo
+function removeTodo(todoid) {
+    const todoindex = usertodos.findIndex(function (Todoindex) {
+        return Todoindex.id === todoid;
     });
 
-    usertodos.splice(findtodo, 1);
-    
-    ShowinDom();
+    usertodos.splice(todoindex , 1);
+    ShowinDom(usertodos);
     setToLocal(usertodos);
 }
 
-// ! Show Success Message ✅
-function message(index) {
-    const findtodo = usertodos[index];
+// ! Done Todo
+function DoneTodos(todoid) {
+    const findtodowithid = usertodos.find(function (Todoindex) {
+        return Todoindex.id === todoid;
+    });
 
-    if (findtodo.isComplete) {
-        findtodo.isComplete = false;
-        
+    const todo = findtodowithid;
+    
+    if (todo.isComplete) {
+        todo.isComplete = false;
+
+        ShowinDom(usertodos);
         setToLocal(usertodos);
-        ShowinDom();
     } else {
-        findtodo.isComplete = true;
+        todo.isComplete = true;
 
+        ShowinDom(usertodos);
         setToLocal(usertodos);
-        ShowinDom();
     }
 }
 
+// ! Sort by User
+let showlastsortbyusers;
+function sortbyuser(event) {
+    const usersort = event.target.dataset.value;
+    let showlastsortbyusers;
 
-// ! Show Nothing 😶‍🌫️
-function shownothing() {
-    hidetodo();
-    ShowinDom();
+    document.querySelector(".sort").firstElementChild.innerHTML = `${usersort}`;
+    localStorage.setItem("sortbydefaultname" , usersort);
+
+    switch(usersort) {
+        case "Complete" : {
+            const completetodo = usertodos.filter(function (usertodo) {
+                return usertodo.isComplete === true;
+            });
+
+            showlastsortbyusers = completetodo;
+            ShowinDom(completetodo);
+
+            break;
+        }
+        case "Incomplete" : {
+            const Incompletetodo = usertodos.filter(function (usertodo) {
+                return usertodo.isComplete === false;
+            });
+
+            showlastsortbyusers = Incompletetodo;
+            ShowinDom(Incompletetodo);
+
+            break;
+        }
+        default : {
+            ShowinDom(usertodos);
+            showlastsortbyusers = usertodos;
+        }
+    }
+
+    localStorage.setItem("lasttodosbyuser" , JSON.stringify(showlastsortbyusers));
 }
+sortitems.forEach(function (sort) {
+    sort.addEventListener("click" , sortbyuser);
+});
 
-addtodo.addEventListener("click" , GetTodo);
+
+function sortbydefault() {
+    const lastusersort = localStorage.getItem("sortbydefaultname");
+    const lasttodosuser = JSON.parse(localStorage.getItem("lasttodosbyuser"));
+    
+
+    document.querySelector(".sort").firstElementChild.innerHTML = `${lastusersort}`;
+
+    ShowinDom(lasttodosuser);
+}
